@@ -104,14 +104,10 @@ def build_context_text(chunks):
 def build_system_prompt():
     return (
         "Use only the information found in the retrieved context.\n"
-        "Do not introduce external facts, but you may infer reasonable interpretations "
-        "based strictly on the tone, actions, or implications shown in the text.\n"
-        "If the context is incomplete, still provide the best possible answer using whatever "
-        "clues are available—never reply that the question cannot be answered.\n"
-        "Clearly indicate when information is uncertain or only partially supported, but still "
-        "give a meaningful analysis.\n"
-        "Always cite Act and Scene for any explicit evidence.\n"
-        "Maintain a scholarly, analytical tone suitable for literature study."
+        "Do not add external knowledge or guess beyond the text.\n"
+        "Cite Act and Scene for every supported claim.\n"
+        "Maintain scholarly, analytical tone suitable for literature study.\n"
+        "If the context is weak, rely strictly on whatever clues are present without inventing details."
     )
 
 

@@ -1,27 +1,25 @@
 version: "3.9"
 
 services:
-
   backend:
-    build:
-      context: ./backend
-    container_name: julius_backend
+    build: ./backend
+    container_name: rag_backend
     ports:
       - "8000:8000"
-    volumes:
-      - ./chroma_julius_caesar:/app/chroma_julius_caesar
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - ./chroma_julius_caesar:/app/chroma_julius_caesar
 
   frontend:
-    build:
-      context: ./frontend
-    container_name: julius_frontend
+    build: ./frontend
+    container_name: rag_frontend
     ports:
       - "8501:8501"
-    environment:
-      - BACKEND_URL=http://backend:8000
     depends_on:
       - backend
-    restart: unless-stopped
+    environment:
+      - BACKEND_URL=http://backend:8000/query
+    volumes:
+      - ./frontend:/app
