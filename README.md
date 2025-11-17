@@ -26,7 +26,7 @@ It enables users to ask natural-language questions about the play and receive:
   - Streamlit → FastAPI → RAG pipeline → Answer + Evidence
 
 ## Folder Structure
-
+``` 
 backend/
 │
 ├── Dockerfile # Backend Docker config
@@ -61,7 +61,7 @@ frontend/
 │
 ├── Dockerfile # Frontend Docker config
 └── frontend.py # Streamlit UI
-
+```
 ---
 
 ## 2. System Architecture
