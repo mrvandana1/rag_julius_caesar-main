@@ -217,19 +217,19 @@ docker compose up
 ---
 ## Contribution 
 
-## 1. Chunk Strategies, ChromaDB Indexing, Web UI Interface
+## 1.Saketh-Chunk Strategies, ChromaDB Indexing, Web UI Interface
 - Chunking Strategies  
-- ChromaDB Indexing  
+- ChromaDB Indexing
+- Retriever 
 - Backend
-- Frotnend 
 
-## 2. RAGs Evaluation, Retriever, Docker, EVAL.md
+## 2.Mohan- RAGs Evaluation, Retriever, Docker, EVAL.md
 - RAGs Evaluation  
 - Retriever  
 - Docker  
 - EVAL.md  
 
-## 3. Test Bed Questions, EVAL.md, Docker
+## 3.Vikash- Test Bed Questions, EVAL.md, Docker
 - Test Bed Questions  
 - EVAL.md  
 - Docker
