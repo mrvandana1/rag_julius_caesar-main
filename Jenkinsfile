@@ -16,7 +16,7 @@ pipeline {
 
         stage('Install Dependencies & Test') {
             steps {
-                sh 'pip install -r backend/requirements.txt'
+                
                 sh 'pytest || true'
             }
         }
