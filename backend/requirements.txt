@@ -1,9 +1,1 @@
-fastapi
-uvicorn
-python-dotenv
-sentence-transformers
-chromadb
-langchain-google-genai==3.0.3
-langchain-core>=1.0.0
-requests
-tqdm
+flask
