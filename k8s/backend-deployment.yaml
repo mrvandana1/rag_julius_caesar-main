@@ -15,6 +15,6 @@ spec:
       containers:
         - name: rag-backend
           image: mrvandana1/rag-backend:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8000

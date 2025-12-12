@@ -15,7 +15,7 @@ spec:
       containers:
         - name: rag-frontend
           image: mrvandana1/rag-frontend:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8501
           env:
