@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CRED = 'mrvandana1'             // Jenkins Credentials ID
-        DOCKERHUB_USER = 'mrvandana1'                    // Your DockerHub username
+        DOCKERHUB_CRED = 'mrvandana1'     // Jenkins Credentials ID (USERNAME + PASS/TOKEN)
+        DOCKERHUB_USER = 'mrvandana1'            // Your DockerHub username
 
         BACKEND_IMAGE  = "${DOCKERHUB_USER}/rag-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USER}/rag-frontend"
@@ -27,20 +27,30 @@ pipeline {
             }
         }
 
+        /* ---------------- WARM DOCKER CACHE ---------------- */
+        stage('Warm Docker Cache') {
+            steps {
+                sh """
+                    echo "Pulling previous images for cache..."
+                    docker pull ${BACKEND_IMAGE}:latest || true
+                    docker pull ${FRONTEND_IMAGE}:latest || true
+                """
+            }
+        }
+
         /* ---------------- TESTS ---------------- */
         stage('Run Backend Tests') {
             steps {
                 dir('backend') {
                     sh '''
                         echo "Running backend tests..."
-
                         if [ -f pytest.ini ] || [ -d tests ]; then
                             python3 -m venv venv
                             . venv/bin/activate
                             pip install -r requirements.txt
                             pytest -q
                         else
-                            echo "No tests found. Skipping..."
+                            echo "No tests found — skipping."
                         fi
                     '''
                 }
@@ -48,7 +58,7 @@ pipeline {
         }
 
         /* ---------------- BUILD DOCKER IMAGES ---------------- */
-        stage('Build Docker Images') {
+        stage('Build Docker Images (Cached)') {
             steps {
                 script {
                     env.IMAGE_TAG = sh(
@@ -57,16 +67,20 @@ pipeline {
                     ).trim()
                 }
 
-                echo "Using tag: ${IMAGE_TAG}"
-
                 sh """
-                    echo "Building backend image..."
-                    docker build -t ${BACKEND_IMAGE}:${IMAGE_TAG} ./backend
-                    docker tag ${BACKEND_IMAGE}:${IMAGE_TAG} ${BACKEND_IMAGE}:latest
+                    echo "Building backend with cache..."
+                    docker build \
+                        --cache-from ${BACKEND_IMAGE}:latest \
+                        -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                        -t ${BACKEND_IMAGE}:latest \
+                        ./backend
 
-                    echo "Building frontend image..."
-                    docker build -t ${FRONTEND_IMAGE}:${IMAGE_TAG} ./frontend
-                    docker tag ${FRONTEND_IMAGE}:${IMAGE_TAG} ${FRONTEND_IMAGE}:latest
+                    echo "Building frontend with cache..."
+                    docker build \
+                        --cache-from ${FRONTEND_IMAGE}:latest \
+                        -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                        -t ${FRONTEND_IMAGE}:latest \
+                        ./frontend
                 """
             }
         }
@@ -74,7 +88,7 @@ pipeline {
         /* ---------------- PUSH DOCKER IMAGES ---------------- */
         stage('Push to DockerHub') {
             steps {
-                echo "Logging into DockerHub and pushing both images..."
+                echo "Logging in & pushing images..."
 
                 withCredentials([usernamePassword(
                     credentialsId: "${DOCKERHUB_CRED}",
@@ -94,10 +108,10 @@ pipeline {
             }
         }
 
-        /* ---------------- DEPLOY USING ANSIBLE ---------------- */
+        /* ---------------- DEPLOY USING ANSIBLE --> K8S ---------------- */
         stage('Deploy via Ansible → Kubernetes') {
             steps {
-                echo "Deploying new images via Ansible..."
+                echo "Deploying to Kubernetes using Ansible..."
 
                 sh """
                     ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/deploy_update_k8s.yml \
@@ -106,11 +120,11 @@ pipeline {
             }
         }
 
-        /* ---------------- VERIFY KUBERNETES ---------------- */
+        /* ---------------- VERIFY ---------------- */
         stage('Kubernetes Verification') {
             steps {
                 sh '''
-                    echo "Fetching Kubernetes status..."
+                    echo "Checking Kubernetes deployments & pods..."
                     kubectl get deployments --all-namespaces
                     kubectl get pods --all-namespaces
                 '''
@@ -120,7 +134,7 @@ pipeline {
         /* ---------------- CLEANUP ---------------- */
         stage('Cleanup Docker Space') {
             steps {
-                echo "Cleaning Docker unused resources..."
+                echo "Cleaning unused Docker layers..."
                 sh 'docker system prune -af || true'
             }
         }
@@ -135,11 +149,11 @@ pipeline {
                  subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                  body: """Hey Mohan,
 
-Your Jenkins pipeline completed successfully 😎
+YDemn we did it :)
 
 Details:
 - Job: ${env.JOB_NAME}
-- Build number: ${env.BUILD_NUMBER}
+- Build: ${env.BUILD_NUMBER}
 - Backend Image: ${BACKEND_IMAGE}:${IMAGE_TAG}
 - Frontend Image: ${FRONTEND_IMAGE}:${IMAGE_TAG}
 
@@ -149,19 +163,19 @@ ${env.BUILD_URL}
         }
 
         failure {
-            echo "FAILURE: Pipeline failed."
+            echo "FAILURE: Pipeline failed!"
 
             mail to: 'vandanamohanaraj@gmail.com',
                 subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """Bro Mohan 😭,
+                body: """Bro we failed ,
 
 Your Jenkins pipeline FAILED.
 
 Details:
 - Job: ${env.JOB_NAME}
-- Build number: ${env.BUILD_NUMBER}
+- Build: ${env.BUILD_NUMBER}
 
-Fix fast and rerun 💀  
+we are cooked bro 💀
 
 Logs:
 ${env.BUILD_URL}
