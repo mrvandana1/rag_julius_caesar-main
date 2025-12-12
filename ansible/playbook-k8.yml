@@ -1,11 +1,29 @@
 - name: Deploy to K8s
   hosts: all
+  environment:
+    KUBECONFIG: /var/lib/jenkins/.kube/config    # THIS IS THE FIX
   tasks:
 
-    - name: Update backend image tag
+    - name: Update backend image
       shell: |
-        /snap/bin/kubectl set image deployment/rag-backend rag-backend=mrvandana1/rag-backend:{{ image_tag }}
+        kubectl set image deployment/rag-backend rag-backend=mrvandana1/rag-backend:{{ backend_tag }}
 
-    - name: Update frontend image tag
+    - name: Update frontend image
       shell: |
-        /snap/bin/kubectl set image deployment/rag-frontend rag-frontend=mrvandana1/rag-frontend:{{ image_tag }}
+        kubectl set image deployment/rag-frontend rag-frontend=mrvandana1/rag-frontend:{{ frontend_tag }}
+
+# - name: Deploy to K8s
+#   hosts: all
+#   tasks:
+
+#     - name: Update backend image
+#       environment:
+#         KUBECONFIG: /home/mohan/.kube/config
+#       shell: |
+#         kubectl set image deployment/rag-backend rag-backend=mrvandana1/rag-backend:{{ backend_tag }}
+
+#     - name: Update frontend image
+#       environment:
+#         KUBECONFIG: /home/mohan/.kube/config
+#       shell: |
+#         kubectl set image deployment/rag-frontend rag-frontend=mrvandana1/rag-frontend:{{ frontend_tag }}

@@ -3,7 +3,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 # --------------------------------------------------------
-# TEST MODE (LLM is disabled)
+# TEST MODE (LLM is disabled) ok
 # --------------------------------------------------------
 TEST_MODE = True
 

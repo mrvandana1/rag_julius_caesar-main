@@ -7,7 +7,7 @@ app = FastAPI(
     description="Backend API for Julius Caesar Expert System",
     version="1.0",
 )
-
+########
 class Query(BaseModel):
     query: str
 
