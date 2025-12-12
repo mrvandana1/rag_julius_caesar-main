@@ -1,7 +1,0 @@
----
-- name: "Apply backend image"
-  command: >
-    kubectl set image deployment/rag-backend rag-backend={{ backend_image }}
-
-- name: "Wait for backend rollout"
-  command: kubectl rollout status deployment/rag-backend --timeout=300s

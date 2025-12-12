@@ -1,0 +1,20 @@
+---
+- name: Remove old frontend images
+  shell: "docker images | grep rag-frontend | awk '{print $3}' | xargs -r docker rmi -f"
+  ignore_errors: true
+
+- name: Pull new frontend image
+  command: docker pull {{ frontend_image }}
+
+- name: Apply frontend deployment YAML
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/roles/frontend/templates/frontend-deployment.yaml"
+
+- name: Set frontend image in deployment
+  command: >
+    kubectl set image deployment/rag-frontend
+    rag-frontend={{ frontend_image }}
+
+- name: Rollout status (frontend)
+  command: kubectl rollout status deployment/rag-frontend

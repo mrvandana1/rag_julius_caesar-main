@@ -1,3 +1,0 @@
----
-- include_tasks: pull.yml
-- include_tasks: tar_and_load.yml

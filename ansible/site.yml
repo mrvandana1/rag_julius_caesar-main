@@ -1,19 +1,17 @@
 ---
-- hosts: local
-  gather_facts: no
-
+- name: Deploy RAG App to Minikube
+  hosts: local
   vars:
-    backend_image: ""
-    frontend_image: ""
-    tmp_dir: "{{ lookup('env','HOME') }}/k8s_images"
+    backend_image: "{{ backend_image | default('none') }}"
+    frontend_image: "{{ frontend_image | default('none') }}"
 
-  pre_tasks:
-    - name: "Ensure temp directory exists"
-      file:
-        path: "{{ tmp_dir }}"
-        state: directory
-        mode: '0777'
+  tasks:
+    - name: Deploy backend if image provided
+      include_role:
+        name: backend
+      when: backend_image != "none"
 
-  roles:
-    - { role: loader, tags: ['full_deploy'] }
-    - { role: deploy, tags: ['full_deploy', 'fast_deploy'] }
+    - name: Deploy frontend if image provided
+      include_role:
+        name: frontend
+      when: frontend_image != "none"

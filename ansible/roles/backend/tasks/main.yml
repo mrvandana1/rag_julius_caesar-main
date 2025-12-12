@@ -1,0 +1,20 @@
+---
+- name: Remove old backend images from Minikube
+  shell: "docker images | grep rag-backend | awk '{print $3}' | xargs -r docker rmi -f"
+  ignore_errors: true
+
+- name: Pull new backend image
+  command: docker pull {{ backend_image }}
+
+- name: Apply backend deployment YAML
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ playbook_dir }}/roles/backend/templates/backend-deployment.yaml"
+
+- name: Set backend image in deployment
+  command: >
+    kubectl set image deployment/rag-backend
+    rag-backend={{ backend_image }}
+
+- name: Rollout status (backend)
+  command: kubectl rollout status deployment/rag-backend
