@@ -14,17 +14,26 @@ pipeline {
                 checkout scm
             }
         }
-
         stage("Detect Changes") {
             steps {
                 script {
-                    env.BACKEND_CHANGED = sh(script: "git diff --name-only HEAD~1 HEAD | grep backend | wc -l", returnStdout: true).trim() != "0"
-                    env.FRONTEND_CHANGED = sh(script: "git diff --name-only HEAD~1 HEAD | grep frontend | wc -l", returnStdout: true).trim() != "0"
+                    // Fallback safe diff (handles first build, merge, shallow clone)
+                    def changedFiles = sh(
+                        script: "git diff --name-only HEAD~1 HEAD || git diff --name-only origin/main HEAD || true",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Changed files:\n${changedFiles}"
+
+                    env.BACKEND_CHANGED  = changedFiles.contains("backend/")
+                    env.FRONTEND_CHANGED = changedFiles.contains("frontend/")
+
+                    echo "Backend Changed : ${env.BACKEND_CHANGED}"
+                    echo "Frontend Changed: ${env.FRONTEND_CHANGED}"
                 }
-                echo "Backend changed: ${env.BACKEND_CHANGED}"
-                echo "Frontend changed: ${env.FRONTEND_CHANGED}"
             }
         }
+
 
         stage("Prepare Tag") {
             when { expression { env.BACKEND_CHANGED || env.FRONTEND_CHANGED } }
@@ -61,14 +70,16 @@ pipeline {
             when { expression { env.BACKEND_CHANGED || env.FRONTEND_CHANGED } }
             steps {
                 script {
-                    if (env.BACKEND_CHANGED) {
+                    if (env.BACKEND_CHANGED == "true") {
+                        echo "Loading backend image into Minikube..."
                         sh """
                             docker save ${BACKEND_IMAGE}:${IMAGE_TAG} -o backend.tar
                             minikube image load backend.tar
                         """
                     }
 
-                    if (env.FRONTEND_CHANGED) {
+                    if (env.FRONTEND_CHANGED == "true") {
+                        echo "Loading frontend image into Minikube..."
                         sh """
                             minikube image load ${FRONTEND_IMAGE}:${IMAGE_TAG}
                         """
@@ -77,11 +88,14 @@ pipeline {
             }
         }
 
+
         stage("Deploy to K8s") {
+            when { expression { env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true" } }
             steps {
                 sh "ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/playbook-k8.yml"
             }
         }
+
     }
 
     post {
