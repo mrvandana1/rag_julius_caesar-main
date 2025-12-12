@@ -28,15 +28,15 @@ pipeline {
         }
 
         /* ---------------- WARM DOCKER CACHE ---------------- */
-        stage('Warm Docker Cache') {
-            steps {
-                sh """
-                    echo "Pulling previous images for cache..."
-                    docker pull ${BACKEND_IMAGE}:latest || true
-                    docker pull ${FRONTEND_IMAGE}:latest || true
-                """
-            }
-        }
+        // stage('Warm Docker Cache') {
+        //     steps {
+        //         sh """
+        //             echo "Pulling previous images for cache..."
+        //             docker pull ${BACKEND_IMAGE}:latest || true
+        //             docker pull ${FRONTEND_IMAGE}:latest || true
+        //         """
+        //     }
+        // }
 
         /* ---------------- TESTS ---------------- */
         stage('Run Backend Tests') {
