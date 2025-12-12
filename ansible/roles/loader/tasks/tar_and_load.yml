@@ -1,0 +1,42 @@
+---
+# BACKEND
+- name: "Save backend image to tar"
+  command: docker save {{ backend_image }} -o {{ tmp_dir }}/backend.tar
+
+- name: "Gzip backend tar"
+  command: gzip -f {{ tmp_dir }}/backend.tar
+
+- name: "Load backend image (gzipped)"
+  command: minikube image load {{ tmp_dir }}/backend.tar.gz
+  register: backend_load
+  ignore_errors: true
+
+- name: "Fallback: gunzip and load backend raw tar"
+  when: backend_load.rc != 0
+  block:
+    - name: "Gunzip backend tar"
+      command: gunzip -f {{ tmp_dir }}/backend.tar.gz
+
+    - name: "Load backend image (raw tar)"
+      command: minikube image load {{ tmp_dir }}/backend.tar
+
+# FRONTEND
+- name: "Save frontend image to tar"
+  command: docker save {{ frontend_image }} -o {{ tmp_dir }}/frontend.tar
+
+- name: "Gzip frontend tar"
+  command: gzip -f {{ tmp_dir }}/frontend.tar
+
+- name: "Load frontend image (gzipped)"
+  command: minikube image load {{ tmp_dir }}/frontend.tar.gz
+  register: frontend_load
+  ignore_errors: true
+
+- name: "Fallback: gunzip and load frontend raw tar"
+  when: frontend_load.rc != 0
+  block:
+    - name: "Gunzip frontend tar"
+      command: gunzip -f {{ tmp_dir }}/frontend.tar.gz
+
+    - name: "Load frontend image (raw tar)"
+      command: minikube image load {{ tmp_dir }}/frontend.tar

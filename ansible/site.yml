@@ -1,0 +1,19 @@
+---
+- hosts: local
+  gather_facts: no
+
+  vars:
+    backend_image: ""
+    frontend_image: ""
+    tmp_dir: "{{ lookup('env','HOME') }}/k8s_images"
+
+  pre_tasks:
+    - name: "Ensure temp directory exists"
+      file:
+        path: "{{ tmp_dir }}"
+        state: directory
+        mode: '0777'
+
+  roles:
+    - { role: loader, tags: ['full_deploy'] }
+    - { role: deploy, tags: ['full_deploy', 'fast_deploy'] }

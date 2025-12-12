@@ -160,15 +160,15 @@ pipeline {
                 expression { env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true" }
             }
             steps {
-                echo "🚀 Deploying to Kubernetes using Ansible..."
+                echo "🚀 Deploying to Kubernetes using Ansible (roles-based)..."
 
                 sh """
-                    ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/deploy_update_k8s.yml \
-                    --extra-vars \\
-                    "backend_image=${BACKEND_IMAGE}:${IMAGE_TAG} frontend_image=${FRONTEND_IMAGE}:${IMAGE_TAG}"
+                    ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/site.yml \
+                    --extra-vars "backend_image=${BACKEND_IMAGE}:${IMAGE_TAG} frontend_image=${FRONTEND_IMAGE}:${IMAGE_TAG}"
                 """
             }
         }
+
 
         /* ---------------- VERIFY ---------------- */
         stage('Kubernetes Verification') {

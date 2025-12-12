@@ -1,0 +1,18 @@
+---
+- name: "Ensure temp directory exists"
+  file:
+    path: "{{ tmp_dir }}"
+    state: directory
+    mode: '0777'
+
+- name: "Check kubectl exists"
+  command: kubectl version --client
+  register: kubectl_ver
+  failed_when: kubectl_ver.rc != 0
+  changed_when: false
+
+
+- name: "Check minikube"
+  command: minikube version
+  register: mk_ver
+  failed_when: mk_ver.rc != 0

@@ -1,0 +1,7 @@
+---
+- name: "Apply frontend image"
+  command: >
+    kubectl set image deployment/rag-frontend rag-frontend={{ frontend_image }}
+
+- name: "Wait for frontend rollout"
+  command: kubectl rollout status deployment/rag-frontend --timeout=180s
