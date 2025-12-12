@@ -124,12 +124,6 @@ ${env.BUILD_URL}
 
 
 
-// pipeline {
-//     agent any 
-
-//     environment {
-//         DOCKERHUB_CRED = 'mrvandana1'
-//         DOCKERHUB_USER = 'mrvandana1'
 
 //         BACKEND_IMAGE  = "${DOCKERHUB_USER}/rag-backend"
 //         FRONTEND_IMAGE = "${DOCKERHUB_USER}/rag-frontend"
