@@ -12,9 +12,9 @@ spec:
       labels:
         app: rag-backend
     spec:
-      containers:
+        containers:
         - name: rag-backend
-          image: mrvandana1/rag-backend:latest
+          image: mrvandana1/rag-backend:{{ image_tag }}
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
