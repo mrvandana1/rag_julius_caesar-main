@@ -1,7 +1,28 @@
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: rag-backend
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: rag-backend
+#   template:
+#     metadata:
+#       labels:
+#         app: rag-backend
+#     spec:
+#       containers:
+#         - name: rag-backend
+#           image: "mrvandana1/rag-backend:latest"   # fallback only
+#           ports:
+#             - containerPort: 8000
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rag-backend
+  labels:
+    app: rag-backend
 spec:
   replicas: 1
   selector:
@@ -12,8 +33,36 @@ spec:
       labels:
         app: rag-backend
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: rag-backend
-          image: saketh479/rag-backend:latest
+          # This is a fallback image; Jenkins/Ansible will override during CI.
+          image: "mrvandana1/rag-backend:latest"
           ports:
             - containerPort: 8000
+          # resource requests/limits: tune to your machine
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2000m"
+              memory: "6Gi"
+          readinessProbe:
+            httpGet:
+              path: /test
+              port: 8000
+            initialDelaySeconds: 8
+            periodSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /test
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            failureThreshold: 5
+            timeoutSeconds: 3
+          # Optional: env vars, volume mounts, if needed

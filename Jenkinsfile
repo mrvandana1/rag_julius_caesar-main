@@ -132,12 +132,12 @@ pipeline {
         }
 
         /* ---------------- CLEANUP ---------------- */
-        stage('Cleanup Docker Space') {
-            steps {
-                echo "Cleaning unused Docker layers..."
-                sh 'docker system prune -af || true'
-            }
-        }
+        // stage('Cleanup Docker Space') {
+        //     steps {
+        //         echo "Cleaning unused Docker layers..."
+        //         sh 'docker system prune -af || true'
+        //     }
+        // }
     }
 
     /* ---------------- EMAIL NOTIFICATION ---------------- */
