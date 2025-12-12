@@ -1,6 +1,7 @@
 ---
 - name: Deploy RAG App to Minikube
   hosts: local
+  gather_facts: false      
   vars:
     backend_image: "{{ backend_image | default('none') }}"
     frontend_image: "{{ frontend_image | default('none') }}"
