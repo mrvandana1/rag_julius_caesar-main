@@ -155,6 +155,7 @@ pipeline {
         }
 
         /* ---------------- DEPLOY USING ANSIBLE ---------------- */
+        /* ---------------- DEPLOY USING ANSIBLE ---------------- */
         stage('Deploy via Ansible → Kubernetes') {
             when {
                 expression { env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true" }
@@ -162,12 +163,25 @@ pipeline {
             steps {
                 echo "🚀 Deploying to Kubernetes using Ansible (roles-based)..."
 
-                sh """
-                    ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/site.yml \
-                    --extra-vars "backend_image=${BACKEND_IMAGE}:${IMAGE_TAG} frontend_image=${FRONTEND_IMAGE}:${IMAGE_TAG}"
-                """
+                script {
+                    // Build dynamic vars
+                    def backend_var = (env.BACKEND_CHANGED == "true") 
+                        ? "backend_image=${BACKEND_IMAGE}:${IMAGE_TAG}" 
+                        : "backend_image=none"
+
+                    def frontend_var = (env.FRONTEND_CHANGED == "true") 
+                        ? "frontend_image=${FRONTEND_IMAGE}:${IMAGE_TAG}" 
+                        : "frontend_image=none"
+
+                    // Run Ansible
+                    sh """
+                        ansible-playbook -i ${ANSIBLE_INVENTORY} ansible/site.yml \
+                        --extra-vars "${backend_var} ${frontend_var}"
+                    """
+                }
             }
         }
+
 
 
         /* ---------------- VERIFY ---------------- */
