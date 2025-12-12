@@ -1,0 +1,5 @@
+- name: Deploy to K8s
+  hosts: all
+  tasks:
+    - name: Apply all manifests
+      shell: kubectl apply -f k8s/

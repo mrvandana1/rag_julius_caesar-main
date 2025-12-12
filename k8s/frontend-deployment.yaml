@@ -1,23 +1,6 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: rag-frontend
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: rag-frontend
-  template:
-    metadata:
-      labels:
-        app: rag-frontend
-    spec:
-      containers:
-        - name: rag-frontend
-          image: rag-frontend:latest
-          imagePullPolicy: Never
-          ports:
-            - containerPort: 8501
-          env:
-            - name: BACKEND_URL
-              value: "http://rag-backend:8000/query"
+env:
+  - name: BACKEND_URL
+    valueFrom:
+      configMapKeyRef:
+        name: frontend-config
+        key: BACKEND_URL
