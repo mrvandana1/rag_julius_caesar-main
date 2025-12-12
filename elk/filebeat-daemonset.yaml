@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: filebeat
+  namespace: elk
+spec:
+  selector:
+    matchLabels:
+      k8s-app: filebeat
+  template:
+    metadata:
+      labels:
+        k8s-app: filebeat
+    spec:
+      serviceAccountName: filebeat
+      hostPID: true
+      containers:
+        - name: filebeat
+          securityContext:
+            privileged: true
+          image: docker.elastic.co/beats/filebeat:8.8.1
+          args: ["-c", "/etc/filebeat.yml", "-e"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/filebeat.yml
+              subPath: filebeat.yml
+
+            # These paths EXIST inside the node container
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+
+      volumes:
+        - name: config
+          configMap:
+            name: filebeat-config
+            defaultMode: 0640
+        - name: varlog
+          hostPath:
+            path: /var/log

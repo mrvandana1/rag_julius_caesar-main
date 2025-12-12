@@ -1,0 +1,44 @@
+---
+- name: Update Kubernetes Deployments with new images (local)
+  hosts: local
+  gather_facts: no
+  vars:
+    # passed from Jenkins via --extra-vars
+    backend_image: ""
+    frontend_image: ""
+    k8s_manifest_dir: "{{ playbook_dir }}/../k8s"
+
+  tasks:
+    - name: Ensure environment has kubectl (debug)
+      command: kubectl version --client --short
+      register: kubectl_ver
+      failed_when: kubectl_ver.rc != 0
+      changed_when: false
+
+    - name: Set backend image on deployment rag-backend
+      command: >
+        kubectl set image deployment/rag-backend rag-backend={{ backend_image }} --namespace=default
+      register: set_backend
+      ignore_errors: false
+
+    - name: Set frontend image on deployment rag-frontend
+      command: >
+        kubectl set image deployment/rag-frontend rag-frontend={{ frontend_image }} --namespace=default
+      register: set_frontend
+      ignore_errors: false
+
+    - name: Wait for backend rollout
+      command: kubectl rollout status deployment/rag-backend --namespace=default --timeout=120s
+      register: rollout_backend
+      failed_when: rollout_backend.rc != 0
+
+    - name: Wait for frontend rollout
+      command: kubectl rollout status deployment/rag-frontend --namespace=default --timeout=120s
+      register: rollout_frontend
+      failed_when: rollout_frontend.rc != 0
+
+    - name: (Optional) Re-apply k8s manifests from repo (if you changed manifests)
+      command: kubectl apply -f {{ k8s_manifest_dir }}/
+      register: apply_manifests
+      changed_when: "'configured' in apply_manifests.stdout or 'unchanged' not in apply_manifests.stdout"
+      ignore_errors: true

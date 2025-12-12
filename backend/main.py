@@ -27,10 +27,13 @@ def ask_question(body: Query):
             "confidence": round(s["confidence"], 4)
         })
 
-    
     cleaned_sources = sorted(cleaned_sources, key=lambda x: x["confidence"], reverse=True)
 
     return {
         "answer": answer,
         "sources": cleaned_sources
     }
+
+@app.get("/test")
+def test():
+    return {"status": "backend alive"}

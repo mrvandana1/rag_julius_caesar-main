@@ -1,1 +1,6 @@
-flask
+fastapi
+uvicorn
+sentence-transformers
+chromadb
+requests
+tqdm

@@ -3,23 +3,17 @@ version: "3.9"
 services:
   backend:
     build: ./backend
-    container_name: rag_backend
+    container_name: calc_backend
     ports:
       - "8000:8000"
-    environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-    volumes:
-      - ./backend:/app
-      - ./chroma_julius_caesar:/app/chroma_julius_caesar
-
+    
   frontend:
     build: ./frontend
-    container_name: rag_frontend
+    container_name: calc_frontend
     ports:
       - "8501:8501"
     depends_on:
       - backend
     environment:
       - BACKEND_URL=http://backend:8000/query
-    volumes:
-      - ./frontend:/app
+    
