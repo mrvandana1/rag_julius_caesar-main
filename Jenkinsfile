@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CRED = 'dockerhub-cred-id'             // Jenkins Credentials ID
+        DOCKERHUB_CRED = 'mrvandana1'             // Jenkins Credentials ID
         DOCKERHUB_USER = 'mrvandana1'                    // Your DockerHub username
 
         BACKEND_IMAGE  = "${DOCKERHUB_USER}/rag-backend"
@@ -77,9 +77,9 @@ pipeline {
                 echo "Logging into DockerHub and pushing both images..."
 
                 withCredentials([usernamePassword(
-                    credentialsId: "${DOCKERHUB_USER}",
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                    credentialsId: "${DOCKERHUB_CRED}",
+                    usernameVariable: 'DH_USER',
+                    passwordVariable: 'DH_PASS'
                 )]) {
                     sh '''
                         echo "$DH_PASS" | docker login -u "$DH_USER" --password-stdin
