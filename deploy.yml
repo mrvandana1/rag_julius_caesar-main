@@ -1,0 +1,23 @@
+- name: Deploy to Kubernetes
+  hosts: all
+  become: yes
+
+  tasks:
+
+    - name: Apply backend deployment
+      command: kubectl apply -f k8s/backend-deployment.yaml
+
+    - name: Apply frontend deployment
+      command: kubectl apply -f k8s/frontend-deployment.yaml
+
+    - name: Apply services
+      command: kubectl apply -f k8s/services.yaml
+
+    - name: Apply ingress
+      command: kubectl apply -f k8s/ingress.yaml
+
+    - name: Apply backend HPA
+      command: kubectl apply -f k8s/backend-hpa.yaml
+
+    - name: Apply frontend HPA
+      command: kubectl apply -f k8s/frontend-hpa.yaml

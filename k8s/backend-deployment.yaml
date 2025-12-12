@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rag-backend
-  labels:
-    app: rag-backend
 spec:
   replicas: 1
   selector:
@@ -14,28 +12,9 @@ spec:
       labels:
         app: rag-backend
     spec:
-      terminationGracePeriodSeconds: 30
       containers:
         - name: rag-backend
-          image: "mrvandana1/rag-backend:latest"
+          image: rag-backend:latest   # Local image inside Minikube
+          imagePullPolicy: Never      # IMPORTANT for Minikube local builds
           ports:
             - containerPort: 8000
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "1Gi"
-            limits:
-              cpu: "2000m"
-              memory: "6Gi"
-          readinessProbe:
-            httpGet:
-              path: /test
-              port: 8000
-            initialDelaySeconds: 8
-            periodSeconds: 5
-          livenessProbe:
-            httpGet:
-              path: /test
-              port: 8000
-            initialDelaySeconds: 20
-            periodSeconds: 15
