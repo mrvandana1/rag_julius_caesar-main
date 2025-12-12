@@ -17,22 +17,44 @@ pipeline {
         stage("Detect Changes") {
             steps {
                 script {
-                    // Fallback safe diff (handles first build, merge, shallow clone)
+                    // Safe diff (handles first build, merge, shallow clone)
                     def changedFiles = sh(
-                        script: "git diff --name-only HEAD~1 HEAD || git diff --name-only origin/main HEAD || true",
+                        script: """
+                            git diff --name-only HEAD~1 HEAD 2>/dev/null || \
+                            git diff --name-only origin/main HEAD 2>/dev/null || true
+                        """,
                         returnStdout: true
                     ).trim()
 
-                    echo "Changed files:\n${changedFiles}"
+                    echo "Changed files:\n${changedFiles ?: 'No changed files detected'}"
 
                     env.BACKEND_CHANGED  = changedFiles.contains("backend/")
                     env.FRONTEND_CHANGED = changedFiles.contains("frontend/")
 
-                    echo "Backend Changed : ${env.BACKEND_CHANGED}"
-                    echo "Frontend Changed: ${env.FRONTEND_CHANGED}"
+                    // Detailed readable output
+                    echo "---- CHANGE SUMMARY ----"
+
+                    if (env.BACKEND_CHANGED == "true") {
+                        echo "[✔] Backend service changed"
+                    } else {
+                        echo "[ ] Backend service unchanged"
+                    }
+
+                    if (env.FRONTEND_CHANGED == "true") {
+                        echo "[✔] Frontend service changed"
+                    } else {
+                        echo "[ ] Frontend service unchanged"
+                    }
+
+                    if (env.BACKEND_CHANGED != "true" && env.FRONTEND_CHANGED != "true") {
+                        echo "✨ No changes detected in backend or frontend — skipping build & deploy"
+                    }
+
+                    echo "------------------------"
                 }
             }
         }
+
 
 
         stage("Prepare Tag") {
