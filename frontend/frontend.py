@@ -3,7 +3,7 @@ import requests
 
 st.set_page_config(page_title="Shakespearean Scholar", layout="wide")
 
-st.title(" Viva Prep 3 :Shakespearean Scholar – Julius Caesar RAG System")
+st.title(" Viva Prep 33 :Shakespearean Scholar – Julius Caesar RAG System")
 st.write("Ask me brooo any question about *Julius Caesar* and get a scholarly answer with citations.")
 ###
 # API_URL = "http://localhost:8000/query"
